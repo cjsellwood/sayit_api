@@ -1,25 +1,25 @@
 // Connect to postgres database
-const db = require("./db")
+const db = require("./db");
 
 const createDB = async () => {
   // Remove old tables
-  await client.query("drop table if exists users, topics, posts;");
+  await db.query("drop table if exists users, topics, posts, comments;");
 
   // Create tables
-  await client.query(`create table users (
+  await db.query(`create table users (
     user_id serial primary key,
     username varchar(100) unique not null,
     password varchar(100) not null,
     joined timestamp not null
   );`);
 
-  await client.query(`create table topics (
+  await db.query(`create table topics (
     topic_id serial primary key,
     name varchar(100) not null,
     description varchar(255) not null
   )`);
 
-  await client.query(`create table posts (
+  await db.query(`create table posts (
     post_id serial primary key,
     user_id int not null references users,
     topic_id int not null references topics,
@@ -28,12 +28,20 @@ const createDB = async () => {
     time timestamp not null
   )`);
 
-  const res = await client.query("select now()");
+  await db.query(`create table comments (
+    comment_id serial primary key,
+    user_id int not null references users,
+    post_id int not null references posts,
+    text text not null,
+    time timestamp not null
+  )`);
+
+  const res = await db.query("select now()");
   console.log(res.rows[0]);
 };
 
 createDB()
   .then(() => {
-    client.end();
+    process.exit();
   })
   .catch((err) => console.log(err.message));
