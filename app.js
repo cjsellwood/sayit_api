@@ -5,6 +5,16 @@ if (process.env.NODE_ENV !== "production") {
 const express = require("express");
 const app = express();
 
+// Connect to postgres database
+const { Client } = require("pg");
+const client = new Client({
+  user: "postgres",
+  database: "sayit",
+});
+
+client.connect();
+
+
 // Defined routes
 const indexRouter = require("./routes/index")
 
