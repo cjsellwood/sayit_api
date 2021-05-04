@@ -1,8 +1,8 @@
 const db = require("../db");
-const bcrypt = require("bcrypt")
+const bcrypt = require("bcrypt");
 const catchAsync = require("../utils/catchAsync");
 const ExpressError = require("../utils/ExpressError");
-const issueJWT = require("../utils/issueJWT")
+const issueJWT = require("../utils/issueJWT");
 
 module.exports.home = catchAsync(async (req, res, next) => {
   const query = await db.query("select * from users");
@@ -32,11 +32,10 @@ module.exports.registerUser = catchAsync(async (req, res, next) => {
       return;
     }
   }
-
-  console.log(result);
+  const user = result.rows[0];
 
   // Send jwt token to user to authenticate their requests
-  const jwt = issueJWT(result.rows[0].user_id);
+  const jwt = issueJWT(user.user_id);
 
   res.status(200).json({
     message: "user registered",
@@ -45,8 +44,32 @@ module.exports.registerUser = catchAsync(async (req, res, next) => {
   });
 });
 
+// Login user and issue new jwt token
 module.exports.loginUser = catchAsync(async (req, res, next) => {
   const { username, password } = req.body;
+  const result = await db.query(
+    `select user_id, password from users where username = $1`,
+    [username]
+  );
+
+  const user = result.rows[0];
+
+  if (!user) {
+    return next(new ExpressError(404, "Incorrect username or password"));
+  }
+  const isValid = await bcrypt.compare(password, user.password);
+
+  // If username and password correct, issue JWT token
+  if (isValid) {
+    const jwt = issueJWT(user.user_id);
+    res.status(200).json({
+      message: "Logged In",
+      token: jwt.token,
+      expiresIn: jwt.expiresIn,
+    });
+  } else {
+    return next(new ExpressError(404, "Incorrect username or password"));
+  }
 });
 
 module.exports.protected = (req, res) => {
