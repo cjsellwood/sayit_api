@@ -16,6 +16,7 @@ const db = require("./db");
 
 // Defined routes
 const indexRouter = require("./routes/index");
+const postsRouter = require('./routes/posts')
 
 // Parse requests
 app.use(express.urlencoded({ extended: true }));
@@ -58,6 +59,7 @@ app.use(passport.initialize());
 
 // Use defined routes
 app.use("/", indexRouter);
+app.use("/posts", postsRouter);
 
 // Handle undefined route error
 app.use("*", (req, res, next) => {
