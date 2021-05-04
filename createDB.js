@@ -1,11 +1,5 @@
 // Connect to postgres database
-const { Client } = require("pg");
-const client = new Client({
-  user: "postgres",
-  database: "sayit",
-});
-
-client.connect();
+const db = require("./db")
 
 const createDB = async () => {
   // Remove old tables
