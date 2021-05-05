@@ -21,5 +21,26 @@ module.exports.newPost = catchAsync(async (req, res, next) => {
     [user_id, topic_id, title, text]
   );
 
-  res.status(200).json({message: "Post Submitted"})
+  res.status(200).json({ message: "Post Submitted" });
+});
+
+// Create new topic
+module.exports.newTopic = catchAsync(async (req, res, next) => {
+  const { name, description } = req.body;
+
+  // Insert new topic into database if topic name unique
+  try {
+  await db.query(`insert into topics (name, description) values ($1, $2)`, [
+    name,
+    description,
+  ]);
+  } catch (err) {
+    if (err.code === "23505") {
+      return next(new ExpressError(400, "Topic already exists"));
+    } else {
+      return;
+    }
+  }
+
+  res.status(200).json({ message: "Topic Created" });
 });

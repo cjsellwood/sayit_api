@@ -4,15 +4,20 @@ module.exports.registerSchema = Joi.object({
   username: Joi.string().max(100).required(),
   password: Joi.string().min(8).max(100).required(),
   confirmPassword: Joi.ref("password"),
-}).required()
+}).required();
 
 module.exports.loginSchema = Joi.object({
   username: Joi.string().max(100).required(),
   password: Joi.string().min(8).max(100).required(),
-}).required()
+}).required();
 
-module.exports.newPost = Joi.object({
+module.exports.newPostSchema = Joi.object({
   topic_id: Joi.string().required(),
   title: Joi.string().required(),
   text: Joi.string(),
-}).required()
+}).required();
+
+module.exports.newTopicSchema = Joi.object({
+  name: Joi.string().required(),
+  description: Joi.string().required(),
+}).required(); 

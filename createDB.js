@@ -15,7 +15,7 @@ const createDB = async () => {
 
   await db.query(`create table topics (
     topic_id serial primary key,
-    name varchar(100) not null,
+    name varchar(100) unique not null,
     description varchar(255) not null
   )`);
 
