@@ -12,8 +12,56 @@ module.exports.allPosts = catchAsync(async (req, res, next) => {
      join users on users.user_id = posts.user_id`
   );
   const posts = result.rows;
-  console.log(posts);
+
   res.status(200).json({ posts: posts });
+});
+
+// Fetch posts of a single topic
+module.exports.topicPosts = catchAsync(async (req, res, next) => {
+  const { topic } = req.params;
+
+  const result = await db.query(
+    `select posts.post_id, posts.user_id, posts.topic_id, posts.title,
+     posts.text, posts.time at time zone 'utc' as time,
+     topics.name as topic, users.username from posts
+     join topics on topics.topic_id = posts.topic_id
+     join users on users.user_id = posts.user_id
+     where topics.name = $1`,
+    [topic]
+  );
+
+  // Send error if not a topic
+  if (!result.rows.length) {
+    return next(new ExpressError(400, "Post does not exist"));
+  }
+
+  const posts = result.rows;
+
+  res.status(200).json({ posts: posts });
+});
+
+// Fetch a single post
+module.exports.singlePost = catchAsync(async (req, res, next) => {
+  const { post_id } = req.params;
+
+  const result = await db.query(
+    `select posts.post_id, posts.user_id, posts.topic_id, posts.title,
+     posts.text, posts.time at time zone 'utc' as time,
+     topics.name as topic, users.username from posts
+     join topics on topics.topic_id = posts.topic_id
+     join users on users.user_id = posts.user_id
+     where posts.post_id = $1`,
+    [post_id]
+  );
+
+  // Send error if not a post_id
+  if (!result.rows.length) {
+    return next(new ExpressError(400, "Post does not exist"));
+  }
+
+  const post = result.rows[0];
+
+  res.status(200).json({ post });
 });
 
 // Create new post

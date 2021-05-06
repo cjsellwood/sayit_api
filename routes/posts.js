@@ -6,6 +6,10 @@ const { validateNewPost } = require("../middleware");
 
 router.get("/", posts.allPosts);
 
+router.get("/topic/:topic", posts.topicPosts);
+
+router.get("/:post_id", posts.singlePost);
+
 router.post(
   "/new",
   validateNewPost,
