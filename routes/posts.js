@@ -13,11 +13,4 @@ router.post(
   posts.newPost
 );
 
-router.post(
-  "/createtopic",
-  validateNewTopic,
-  passport.authenticate("jwt", { session: false }),
-  posts.newTopic
-);
-
 module.exports = router;
