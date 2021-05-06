@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const passport = require("passport");
 const posts = require("../controllers/posts");
-const { validateNewPost, validateNewTopic } = require("../middleware");
+const { validateNewPost } = require("../middleware");
 
 router.get("/", posts.allPosts);
 
