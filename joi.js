@@ -12,7 +12,7 @@ module.exports.loginSchema = Joi.object({
 }).required();
 
 module.exports.newPostSchema = Joi.object({
-  topic_id: Joi.string().required(),
+  topic: Joi.string().required(),
   title: Joi.string().required(),
   text: Joi.string(),
 }).required();

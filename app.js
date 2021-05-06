@@ -41,12 +41,13 @@ opts.secretOrKey = process.env.JWT_PRIVATE;
 
 passport.use(
   new JwtStrategy(opts, async (payload, done) => {
-    console.log("jwt authentication")
-    const user = await db.query(
+    const result = await db.query(
       "select user_id from users where user_id = $1",
       [payload.sub]
     );
-    console.log(user)
+
+    const user = result.rows[0]
+
     if (user) {
       return done(null, user);
     } else {
