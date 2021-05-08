@@ -44,6 +44,7 @@ module.exports.topicPosts = catchAsync(async (req, res, next) => {
 module.exports.singlePost = catchAsync(async (req, res, next) => {
   const { post_id } = req.params;
 
+  // Get post details
   const result = await db.query(
     `select posts.post_id, posts.user_id, posts.topic_id, posts.title,
      posts.text, posts.time at time zone 'utc' as time,
@@ -61,7 +62,18 @@ module.exports.singlePost = catchAsync(async (req, res, next) => {
 
   const post = result.rows[0];
 
-  res.status(200).json({ post });
+  // Get comments for post
+  const commentsResult = await db.query(
+    `select comments.comment_id, comments.user_id, comments.text,
+     comments.time at time zone 'utc' as time, users.username from
+    comments join users on comments.user_id = users.user_id
+     where comments.post_id = $1`, [post_id]
+  );
+
+  const comments = commentsResult.rows;
+
+
+  res.status(200).json({ post, comments });
 });
 
 // Create new post

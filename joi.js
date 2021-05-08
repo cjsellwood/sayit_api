@@ -21,3 +21,8 @@ module.exports.newTopicSchema = Joi.object({
   name: Joi.string().required(),
   description: Joi.string().required(),
 }).required(); 
+
+module.exports.newCommentSchema = Joi.object({
+  text: Joi.string().required(),
+  post_id: Joi.number().required(),
+}).required()

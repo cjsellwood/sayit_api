@@ -3,6 +3,7 @@ const {
   loginSchema,
   newPostSchema,
   newTopicSchema,
+  newCommentSchema,
 } = require("./joi");
 const ExpressError = require("./utils/ExpressError");
 
@@ -50,3 +51,14 @@ module.exports.validateNewTopic = (req, res, next) => {
   }
   next();
 };
+
+module.exports.validateNewComment = (req, res, next) => {
+  const isValid = newCommentSchema.validate(req.body);
+  if (isValid.error) {
+    const message = isValid.error.details
+      .map((error) => error.message)
+      .join(",");
+    return next(new ExpressError(400, message));
+  }
+  next();
+}
