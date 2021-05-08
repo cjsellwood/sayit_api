@@ -6,7 +6,9 @@ const { validateNewPost } = require("../middleware");
 
 router.get("/", posts.allPosts);
 
-router.get("/topic/:topic", posts.topicPosts);
+router.get("/topics", posts.getTopics);
+
+router.get("/topics/:topic", posts.topicPosts);
 
 router.get("/:post_id", posts.singlePost);
 

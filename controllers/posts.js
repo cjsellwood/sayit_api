@@ -30,9 +30,16 @@ module.exports.topicPosts = catchAsync(async (req, res, next) => {
     [topic]
   );
 
+  console.log(result);
+
   // Send error if not a topic
   if (!result.rows.length) {
-    return next(new ExpressError(400, "Post does not exist"));
+    return next(
+      new ExpressError(
+        400,
+        "Topic does not exist or there are no posts for topic"
+      )
+    );
   }
 
   const posts = result.rows;
@@ -67,11 +74,11 @@ module.exports.singlePost = catchAsync(async (req, res, next) => {
     `select comments.comment_id, comments.user_id, comments.text,
      comments.time at time zone 'utc' as time, users.username from
     comments join users on comments.user_id = users.user_id
-     where comments.post_id = $1`, [post_id]
+     where comments.post_id = $1`,
+    [post_id]
   );
 
   const comments = commentsResult.rows;
-
 
   res.status(200).json({ post, comments });
 });
@@ -100,4 +107,15 @@ module.exports.newPost = catchAsync(async (req, res, next) => {
   );
 
   res.status(200).json({ message: "Post Submitted" });
+});
+
+// Get list of topics
+module.exports.getTopics = catchAsync(async (req, res, next) => {
+  const result = await db.query(
+    `select topic_id, name, description from topics`
+  );
+
+  const topics = result.rows;
+
+  res.status(200).json({ topics });
 });

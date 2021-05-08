@@ -4,12 +4,15 @@ const db = require("../db");
 
 module.exports.newComment = catchAsync(async (req, res, next) => {
   const { text, post_id } = req.body;
-  const { user_id } = req.user;
+  const { user_id, username } = req.user;
 
-  await db.query(
-    `insert into comments (user_id, post_id, text, time) values ($1, $2, $3, now())`,
+  const result = await db.query(
+    `insert into comments (user_id, post_id, text, time)
+     values ($1, $2, $3, now()) returning comment_id, user_id, text, time`,
     [user_id, post_id, text]
   );
 
-  res.status(200).json({ message: "Comment Submitted" });
+  const comment = { ...result.rows[0], username };
+
+  res.status(200).json({ message: "Comment Submitted", comment });
 });

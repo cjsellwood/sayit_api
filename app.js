@@ -43,7 +43,7 @@ opts.secretOrKey = process.env.JWT_PRIVATE;
 passport.use(
   new JwtStrategy(opts, async (payload, done) => {
     const result = await db.query(
-      "select user_id from users where user_id = $1",
+      "select user_id, username from users where user_id = $1",
       [payload.sub]
     );
 
