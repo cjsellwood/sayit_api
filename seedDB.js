@@ -1,11 +1,13 @@
 // Connect to postgres database
 const db = require("./db");
+const bcrypt = require("bcrypt")
 
 const seedDB = async () => {
   // Create test users
   const users = [];
+  const password = await bcrypt.hash("testuser", 12);
   for (let i = 1; i <= 10; i++) {
-    users.push(`('test${i}', 'testuser', now())`);
+    users.push(`('test${i}', '${password}', now())`);
   }
 
   await db.query(
@@ -16,7 +18,7 @@ const seedDB = async () => {
   const topics = [];
 
   for (let i = 1; i <= 5; i++) {
-    topics.push(`('Topic ${i}', 'Description for topic ${i}')`);
+    topics.push(`('Topic${i}', 'Description for topic ${i}')`);
   }
 
   await db.query(
@@ -69,8 +71,10 @@ const seedDB = async () => {
   );
 };
 
-seedDB()
-  .then(() => {
-    process.exit();
-  })
-  .catch((err) => console.log(err.message));
+// seedDB()
+//   .then(() => {
+//     process.exit();
+//   })
+//   .catch((err) => console.log(err.message));
+
+module.exports = seedDB

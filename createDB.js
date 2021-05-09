@@ -1,5 +1,6 @@
 // Connect to postgres database
 const db = require("./db");
+const seedDB = require("./seedDB")
 
 const createDB = async () => {
   // Remove old tables
@@ -39,6 +40,8 @@ const createDB = async () => {
 
   const res = await db.query("select now()");
   console.log(res.rows[0]);
+
+  await seedDB();
 };
 
 createDB()
