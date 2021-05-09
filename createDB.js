@@ -33,6 +33,7 @@ const createDB = async () => {
     user_id int not null references users,
     post_id int not null references posts,
     text text not null,
+    parent int references comments,
     time timestamp not null
   )`);
 

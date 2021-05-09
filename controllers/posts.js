@@ -102,7 +102,8 @@ module.exports.newPost = catchAsync(async (req, res, next) => {
 
   // Insert into database
   const insert = await db.query(
-    "insert into posts (user_id, topic_id, title, text, time) values ($1, $2, $3, $4, now())",
+    `insert into posts (user_id, topic_id, title, text, time)
+     values ($1, $2, $3, $4, now())`,
     [user_id, topic_id, title, text]
   );
 
