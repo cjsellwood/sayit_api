@@ -71,7 +71,7 @@ module.exports.singlePost = catchAsync(async (req, res, next) => {
 
   // Get comments for post
   const commentsResult = await db.query(
-    `select comments.comment_id, comments.user_id, comments.text,
+    `select comments.comment_id, comments.user_id, comments.text, comments.parent,
      comments.time at time zone 'utc' as time, users.username from
     comments join users on comments.user_id = users.user_id
      where comments.post_id = $1`,
