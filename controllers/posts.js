@@ -128,10 +128,23 @@ module.exports.deletePost = catchAsync(async (req, res, next) => {
   const { user_id } = req.user;
   const { post_id } = req.body;
 
-  await db.query(`delete from posts where post_id = $1 and user_id = $2`, [
+  const result = await db.query(`delete from posts where post_id = $1 and user_id = $2`, [
     post_id,
     user_id,
   ]);
 
   res.status(200).json({ message: "Post Deleted" });
+});
+
+// Edit post
+module.exports.editPost = catchAsync(async (req, res, next) => {
+  const { user_id } = req.user;
+  const { text, post_id } = req.body;
+
+  await db.query(
+    `update posts set text = $1 where post_id = $2 and user_id = $3`,
+    [text, post_id, user_id]
+  );
+
+  res.status(200).json({ message: "Comment edited" });
 });

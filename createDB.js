@@ -32,7 +32,7 @@ const createDB = async () => {
   await db.query(`create table comments (
     comment_id serial primary key,
     user_id int not null references users,
-    post_id int not null references posts,
+    post_id int not null references posts on delete cascade,
     text text not null,
     parent int references comments,
     time timestamp not null
