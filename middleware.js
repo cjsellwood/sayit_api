@@ -4,6 +4,7 @@ const {
   newPostSchema,
   newTopicSchema,
   newCommentSchema,
+  deleteCommentSchema,
 } = require("./joi");
 const ExpressError = require("./utils/ExpressError");
 
@@ -61,4 +62,15 @@ module.exports.validateNewComment = (req, res, next) => {
     return next(new ExpressError(400, message));
   }
   next();
-}
+};
+
+module.exports.validateDeleteComment = (req, res, next) => {
+  const isValid = deleteCommentSchema.validate(req.body);
+  if (isValid.error) {
+    const message = isValid.error.details
+      .map((error) => error.message)
+      .join(",");
+    return next(new ExpressError(400, message));
+  }
+  next();
+};

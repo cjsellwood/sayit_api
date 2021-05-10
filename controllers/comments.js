@@ -17,3 +17,13 @@ module.exports.newComment = catchAsync(async (req, res, next) => {
 
   res.status(200).json({ message: "Comment Submitted", comment });
 });
+
+module.exports.deleteComment = catchAsync(async(req, res, next) => {
+  const {user_id} = req.user;
+  const {comment_id} = req.body;
+
+  const result = await db.query(`update comments set text = '[deleted]', user_id = 11
+  where comment_id = $1 and user_id = $2`, [comment_id, user_id])
+
+  res.status(200).json({message: "Comment deleted"})
+})

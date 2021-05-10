@@ -1,6 +1,6 @@
 // Connect to postgres database
 const db = require("./db");
-const bcrypt = require("bcrypt")
+const bcrypt = require("bcrypt");
 
 const seedDB = async () => {
   // Create test users
@@ -12,6 +12,17 @@ const seedDB = async () => {
 
   await db.query(
     `insert into users (username, password, joined) values ${users.join(", ")};`
+  );
+
+  // Create user to assign to every deleted comment
+  const deletedPassword = await bcrypt.hash(
+    "1EF41ABF5352C5B525BC21CF9162F",
+    12
+  );
+
+  await db.query(
+    `insert into users (username, password, joined)
+    values ('[deleted]', '${deletedPassword}', now())`
   );
 
   // Create topics
@@ -55,19 +66,21 @@ const seedDB = async () => {
   // Create nested comments chain
   comments.push(
     `(${1}, ${1}, 'This is a parent comment on post 1', null, now())`
-  )
+  );
   comments.push(
     `(${1}, ${1}, 'This is a second level nested comment on post 1', 51, now())`
-  )
+  );
   comments.push(
     `(${1}, ${1}, 'This is a third level nested comment on post 1', 52, now())`
-  )
+  );
   comments.push(
     `(${1}, ${1}, 'This is a fourth level nested comment on post 1', 53, now())`
-  )
+  );
 
   await db.query(
-    `insert into comments (user_id, post_id, text, parent, time) values ${comments.join(", ")}`
+    `insert into comments (user_id, post_id, text, parent, time) values ${comments.join(
+      ", "
+    )}`
   );
 };
 
@@ -77,4 +90,4 @@ const seedDB = async () => {
 //   })
 //   .catch((err) => console.log(err.message));
 
-module.exports = seedDB
+module.exports = seedDB;

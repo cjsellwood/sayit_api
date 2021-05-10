@@ -27,3 +27,7 @@ module.exports.newCommentSchema = Joi.object({
   post_id: Joi.number().required(),
   parent: Joi.number(),
 }).required()
+
+module.exports.deleteCommentSchema = Joi.object({
+  comment_id: Joi.number().required(),
+}).required()
