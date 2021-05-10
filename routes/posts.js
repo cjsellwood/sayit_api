@@ -2,7 +2,11 @@ const express = require("express");
 const router = express.Router();
 const passport = require("passport");
 const posts = require("../controllers/posts");
-const { validateNewPost, validateDeletePost } = require("../middleware");
+const {
+  validateNewPost,
+  validateDeletePost,
+  validateEditPost,
+} = require("../middleware");
 
 router.get("/", posts.allPosts);
 
@@ -23,7 +27,14 @@ router.delete(
   "/:post_id/delete",
   validateDeletePost,
   passport.authenticate("jwt", { session: false }),
-  posts.deletePost,
-)
+  posts.deletePost
+);
+
+router.patch(
+  "/:post_id/edit",
+  validateEditPost,
+  passport.authenticate("jwt", { session: false }),
+  posts.editPost
+);
 
 module.exports = router;

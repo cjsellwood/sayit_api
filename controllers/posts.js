@@ -30,8 +30,6 @@ module.exports.topicPosts = catchAsync(async (req, res, next) => {
     [topic]
   );
 
-  console.log(result);
-
   // Send error if not a topic
   if (!result.rows.length) {
     return next(
