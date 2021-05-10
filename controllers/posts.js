@@ -83,6 +83,17 @@ module.exports.singlePost = catchAsync(async (req, res, next) => {
   res.status(200).json({ post, comments });
 });
 
+// Get list of topics
+module.exports.getTopics = catchAsync(async (req, res, next) => {
+  const result = await db.query(
+    `select topic_id, name, description from topics`
+  );
+
+  const topics = result.rows;
+
+  res.status(200).json({ topics });
+});
+
 // Create new post
 module.exports.newPost = catchAsync(async (req, res, next) => {
   const { user_id } = req.user;
@@ -103,20 +114,24 @@ module.exports.newPost = catchAsync(async (req, res, next) => {
   // Insert into database
   const insert = await db.query(
     `insert into posts (user_id, topic_id, title, text, time)
-     values ($1, $2, $3, $4, now())`,
+     values ($1, $2, $3, $4, now()) returning post_id`,
     [user_id, topic_id, title, text]
   );
 
-  res.status(200).json({ message: "Post Submitted" });
+  res
+    .status(200)
+    .json({ message: "Post Submitted", post_id: insert.rows[0].post_id });
 });
 
-// Get list of topics
-module.exports.getTopics = catchAsync(async (req, res, next) => {
-  const result = await db.query(
-    `select topic_id, name, description from topics`
-  );
+// Delete post
+module.exports.deletePost = catchAsync(async (req, res, next) => {
+  const { user_id } = req.user;
+  const { post_id } = req.body;
 
-  const topics = result.rows;
+  await db.query(`delete from posts where post_id = $1 and user_id = $2`, [
+    post_id,
+    user_id,
+  ]);
 
-  res.status(200).json({ topics });
+  res.status(200).json({ message: "Post Deleted" });
 });

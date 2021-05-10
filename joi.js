@@ -17,6 +17,10 @@ module.exports.newPostSchema = Joi.object({
   text: Joi.string(),
 }).required();
 
+module.exports.deletePostSchema = Joi.object({
+  post_id: Joi.number().required(),
+}).required()
+
 module.exports.newTopicSchema = Joi.object({
   name: Joi.string().required(),
   description: Joi.string().required(),
