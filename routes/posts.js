@@ -6,11 +6,14 @@ const {
   validateNewPost,
   validateDeletePost,
   validateEditPost,
+  validateSingleTopic,
 } = require("../middleware");
 
 router.get("/", posts.allPosts);
 
 router.get("/topics", posts.getTopics);
+
+router.post("/singletopic", validateSingleTopic, posts.getSingleTopic);
 
 router.get("/topics/:topic", posts.topicPosts);
 

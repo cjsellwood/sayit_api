@@ -92,6 +92,19 @@ module.exports.getTopics = catchAsync(async (req, res, next) => {
   res.status(200).json({ topics });
 });
 
+// Get single topic
+module.exports.getSingleTopic = catchAsync(async (req, res, next) => {
+  const { topic } = req.body;
+  const result = await db.query(
+    `select topic_id, name, description from topics where name = $1`,
+    [topic]
+  );
+
+  const topicContent = result.rows[0];
+
+  res.status(200).json({ topic: topicContent });
+});
+
 // Create new post
 module.exports.newPost = catchAsync(async (req, res, next) => {
   const { user_id } = req.user;
@@ -126,7 +139,7 @@ module.exports.deletePost = catchAsync(async (req, res, next) => {
   const { user_id } = req.user;
   const { post_id } = req.body;
 
-  const result = await db.query(`delete from posts where post_id = $1 and user_id = $2`, [
+  await db.query(`delete from posts where post_id = $1 and user_id = $2`, [
     post_id,
     user_id,
   ]);

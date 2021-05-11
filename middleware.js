@@ -8,6 +8,7 @@ const {
   newCommentSchema,
   deleteCommentSchema,
   editCommentSchema,
+  singleTopicSchema,
 } = require("./joi");
 const ExpressError = require("./utils/ExpressError");
 
@@ -67,7 +68,6 @@ module.exports.validateEditPost = (req, res, next) => {
   next();
 };
 
-
 module.exports.validateNewTopic = (req, res, next) => {
   const isValid = newTopicSchema.validate(req.body);
   if (isValid.error) {
@@ -112,3 +112,13 @@ module.exports.validateEditComment = (req, res, next) => {
   next();
 };
 
+module.exports.validateSingleTopic = (req, res, next) => {
+  const isValid = singleTopicSchema.validate(req.body);
+  if (isValid.error) {
+    const message = isValid.error.details
+      .map((error) => error.message)
+      .join(",");
+    return next(new ExpressError(400, message));
+  }
+  next();
+};

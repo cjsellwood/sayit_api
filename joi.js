@@ -19,12 +19,12 @@ module.exports.newPostSchema = Joi.object({
 
 module.exports.deletePostSchema = Joi.object({
   post_id: Joi.number().required(),
-}).required()
+}).required();
 
 module.exports.editPostSchema = Joi.object({
   text: Joi.string().required(),
   post_id: Joi.number().required(),
-}).required()
+}).required();
 
 module.exports.newTopicSchema = Joi.object({
   name: Joi.string().required(),
@@ -44,4 +44,13 @@ module.exports.deleteCommentSchema = Joi.object({
 module.exports.editCommentSchema = Joi.object({
   text: Joi.string().required(),
   comment_id: Joi.number().required(),
+}).required();
+
+module.exports.singleCommentSchema = Joi.object({
+  text: Joi.string().required(),
+  comment_id: Joi.number().required(),
+}).required();
+
+module.exports.singleTopicSchema = Joi.object({
+  topic: Joi.string().required(),
 }).required();
