@@ -4,12 +4,6 @@ const catchAsync = require("../utils/catchAsync");
 const ExpressError = require("../utils/ExpressError");
 const issueJWT = require("../utils/issueJWT");
 
-module.exports.home = catchAsync(async (req, res, next) => {
-  const query = await db.query("select * from users");
-  console.log(query.rows);
-  res.send({ page: "Home" });
-});
-
 // Register new user
 module.exports.registerUser = catchAsync(async (req, res, next) => {
   const { username, password } = req.body;

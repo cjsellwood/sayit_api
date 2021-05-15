@@ -159,3 +159,32 @@ module.exports.editPost = catchAsync(async (req, res, next) => {
 
   res.status(200).json({ message: "Comment edited" });
 });
+
+// Get posts containing search query
+module.exports.searchPosts = catchAsync(async (req, res, next) => {
+  const {q} = req.query;
+
+  const result = await db.query(
+    `select posts.post_id, posts.user_id, posts.topic_id, posts.title,
+     posts.text, posts.time at time zone 'utc' as time,
+     topics.name as topic, users.username from posts
+     join topics on topics.topic_id = posts.topic_id
+     join users on users.user_id = posts.user_id
+     where posts.title ilike $1 or posts.text ilike $1`,
+    [`%${q}%`]
+  );
+  
+  // Send error if not a topic
+  if (!result.rows.length) {
+    return next(
+      new ExpressError(
+        400,
+        "No posts found"
+      )
+    );
+  }
+
+  const posts = result.rows;
+
+  res.status(200).json({ posts: posts });
+});

@@ -8,8 +8,6 @@ const {
   validateNewTopic,
 } = require("../middleware");
 
-router.get("/", index.home);
-
 router.post("/register", validateRegister, index.registerUser);
 
 router.post("/login", validateLogin, index.loginUser);
