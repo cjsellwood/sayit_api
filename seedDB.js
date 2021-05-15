@@ -29,7 +29,7 @@ const seedDB = async () => {
   const topics = [];
 
   for (let i = 1; i <= 5; i++) {
-    topics.push(`('Topic${i}', 'Description for topic ${i}')`);
+    topics.push(`('topic${i}', 'Description for topic ${i}')`);
   }
 
   await db.query(

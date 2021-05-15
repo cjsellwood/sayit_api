@@ -6,6 +6,15 @@ module.exports.newComment = catchAsync(async (req, res, next) => {
   const { text, post_id, parent } = req.body;
   const { user_id, username } = req.user;
 
+  // Delay test
+  const delay = new Promise((resolve) => {
+    setTimeout(() => {
+      console.log("test delay - ", req.url);
+      resolve();
+    }, 2000);
+  });
+  await delay;
+
   const result = await db.query(
     `insert into comments (user_id, post_id, text, parent, time)
      values ($1, $2, $3, $4, now()) returning comment_id, user_id, text, parent,
@@ -22,6 +31,15 @@ module.exports.deleteComment = catchAsync(async(req, res, next) => {
   const {user_id} = req.user;
   const {comment_id} = req.body;
 
+  // Delay test
+  const delay = new Promise((resolve) => {
+    setTimeout(() => {
+      console.log("test delay - ", req.url);
+      resolve();
+    }, 2000);
+  });
+  await delay;
+
   await db.query(`update comments set text = '[deleted]', user_id = 11
   where comment_id = $1 and user_id = $2`, [comment_id, user_id])
 
@@ -31,6 +49,15 @@ module.exports.deleteComment = catchAsync(async(req, res, next) => {
 module.exports.editComment = catchAsync(async(req, res, next) => {
   const {user_id} = req.user;
   const {text, comment_id} = req.body;
+
+  // Delay test
+  const delay = new Promise((resolve) => {
+    setTimeout(() => {
+      console.log("test delay - ", req.url);
+      resolve();
+    }, 2000);
+  });
+  await delay;
 
   await db.query(`update comments set text = $1
   where comment_id = $2 and user_id = $3`, [text, comment_id, user_id])

@@ -4,6 +4,15 @@ const db = require("../db");
 
 // Fetch all posts
 module.exports.allPosts = catchAsync(async (req, res, next) => {
+  // Delay test
+  const delay = new Promise((resolve) => {
+    setTimeout(() => {
+      console.log("test delay - ", req.url);
+      resolve();
+    }, 2000);
+  });
+  await delay;
+
   const result = await db.query(
     `select posts.post_id, posts.user_id, posts.topic_id, posts.title,
      posts.text, posts.time at time zone 'utc' as time,
@@ -20,6 +29,15 @@ module.exports.allPosts = catchAsync(async (req, res, next) => {
 module.exports.topicPosts = catchAsync(async (req, res, next) => {
   const { topic } = req.params;
 
+  // Delay test
+  const delay = new Promise((resolve) => {
+    setTimeout(() => {
+      console.log("test delay - ", req.url);
+      resolve();
+    }, 2000);
+  });
+  await delay;
+
   const result = await db.query(
     `select posts.post_id, posts.user_id, posts.topic_id, posts.title,
      posts.text, posts.time at time zone 'utc' as time,
@@ -32,12 +50,16 @@ module.exports.topicPosts = catchAsync(async (req, res, next) => {
 
   // Send error if not a topic
   if (!result.rows.length) {
-    return next(
-      new ExpressError(
-        400,
-        "Topic does not exist or there are no posts for topic"
-      )
+    const topicExists = await db.query(
+      `select name from topics where name = $1`,
+      [topic]
     );
+
+    if (topicExists.rows.length) {
+      return next(new ExpressError(400, "There are no posts for this topic"));
+    } else {
+      return next(new ExpressError(400, "Topic does not exist"));
+    }
   }
 
   const posts = result.rows;
@@ -48,6 +70,14 @@ module.exports.topicPosts = catchAsync(async (req, res, next) => {
 // Fetch a single post
 module.exports.singlePost = catchAsync(async (req, res, next) => {
   const { post_id } = req.params;
+  // Delay test
+  const delay = new Promise((resolve) => {
+    setTimeout(() => {
+      console.log("test delay - ", req.url);
+      resolve();
+    }, 2000);
+  });
+  await delay;
 
   // Get post details
   const result = await db.query(
@@ -83,6 +113,15 @@ module.exports.singlePost = catchAsync(async (req, res, next) => {
 
 // Get list of topics
 module.exports.getTopics = catchAsync(async (req, res, next) => {
+  // Delay test
+  const delay = new Promise((resolve) => {
+    setTimeout(() => {
+      console.log("test delay - ", req.url);
+      resolve();
+    }, 2000);
+  });
+  await delay;
+
   const result = await db.query(
     `select topic_id, name, description from topics`
   );
@@ -95,10 +134,25 @@ module.exports.getTopics = catchAsync(async (req, res, next) => {
 // Get single topic
 module.exports.getSingleTopic = catchAsync(async (req, res, next) => {
   const { topic } = req.body;
+
+  // Delay test
+  const delay = new Promise((resolve) => {
+    setTimeout(() => {
+      console.log("test delay - ", req.url);
+      resolve();
+    }, 2000);
+  });
+  await delay;
+
   const result = await db.query(
     `select topic_id, name, description from topics where name = $1`,
     [topic]
   );
+
+  // Send error if not a topic
+  if (!result.rows.length) {
+    return next(new ExpressError(400, "Topic does not exist"));
+  }
 
   const topicContent = result.rows[0];
 
@@ -109,6 +163,15 @@ module.exports.getSingleTopic = catchAsync(async (req, res, next) => {
 module.exports.newPost = catchAsync(async (req, res, next) => {
   const { user_id } = req.user;
   const { topic, title, text } = req.body;
+
+  // Delay test
+  const delay = new Promise((resolve) => {
+    setTimeout(() => {
+      console.log("test delay - ", req.url);
+      resolve();
+    }, 2000);
+  });
+  await delay;
 
   // Check if topic exists and get id
   const result = await db.query("select topic_id from topics where name = $1", [
@@ -131,13 +194,22 @@ module.exports.newPost = catchAsync(async (req, res, next) => {
 
   res
     .status(200)
-    .json({ message: "Post Submitted", post_id: insert.rows[0].post_id });
+    .json({ message: "Post Created", post_id: insert.rows[0].post_id });
 });
 
 // Delete post
 module.exports.deletePost = catchAsync(async (req, res, next) => {
   const { user_id } = req.user;
   const { post_id } = req.body;
+
+  // Delay test
+  const delay = new Promise((resolve) => {
+    setTimeout(() => {
+      console.log("test delay - ", req.url);
+      resolve();
+    }, 2000);
+  });
+  await delay;
 
   await db.query(`delete from posts where post_id = $1 and user_id = $2`, [
     post_id,
@@ -152,6 +224,15 @@ module.exports.editPost = catchAsync(async (req, res, next) => {
   const { user_id } = req.user;
   const { text, post_id } = req.body;
 
+  // Delay test
+  const delay = new Promise((resolve) => {
+    setTimeout(() => {
+      console.log("test delay - ", req.url);
+      resolve();
+    }, 2000);
+  });
+  await delay;
+
   await db.query(
     `update posts set text = $1 where post_id = $2 and user_id = $3`,
     [text, post_id, user_id]
@@ -162,7 +243,16 @@ module.exports.editPost = catchAsync(async (req, res, next) => {
 
 // Get posts containing search query
 module.exports.searchPosts = catchAsync(async (req, res, next) => {
-  const {q} = req.query;
+  const { q } = req.query;
+
+  // Delay test
+  const delay = new Promise((resolve) => {
+    setTimeout(() => {
+      console.log("test delay - ", req.url);
+      resolve();
+    }, 2000);
+  });
+  await delay;
 
   const result = await db.query(
     `select posts.post_id, posts.user_id, posts.topic_id, posts.title,
@@ -173,15 +263,10 @@ module.exports.searchPosts = catchAsync(async (req, res, next) => {
      where posts.title ilike $1 or posts.text ilike $1`,
     [`%${q}%`]
   );
-  
+
   // Send error if not a topic
   if (!result.rows.length) {
-    return next(
-      new ExpressError(
-        400,
-        "No posts found"
-      )
-    );
+    return next(new ExpressError(400, "No posts found"));
   }
 
   const posts = result.rows;

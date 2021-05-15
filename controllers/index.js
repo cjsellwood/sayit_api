@@ -13,6 +13,15 @@ module.exports.registerUser = catchAsync(async (req, res, next) => {
 
   let result;
 
+  // Delay test
+  const delay = new Promise((resolve) => {
+    setTimeout(() => {
+      console.log("test delay - ", req.url);
+      resolve();
+    }, 2000);
+  });
+  await delay;
+
   // Handle username already exists error
   try {
     result = await db.query(
@@ -32,7 +41,7 @@ module.exports.registerUser = catchAsync(async (req, res, next) => {
   const jwt = issueJWT(user.user_id);
 
   res.status(200).json({
-    message: "user registered",
+    message: "You are now registered",
     token: jwt.token,
     expiresIn: jwt.expiresIn,
   });
@@ -45,6 +54,15 @@ module.exports.loginUser = catchAsync(async (req, res, next) => {
     `select user_id, password from users where username = $1`,
     [username]
   );
+
+  // Delay test
+  const delay = new Promise((resolve) => {
+    setTimeout(() => {
+      console.log("test delay - ", req.url);
+      resolve();
+    }, 2000);
+  });
+  await delay;
 
   const user = result.rows[0];
 
@@ -70,10 +88,19 @@ module.exports.loginUser = catchAsync(async (req, res, next) => {
 module.exports.newTopic = catchAsync(async (req, res, next) => {
   const { name, description } = req.body;
 
+  // Delay test
+  const delay = new Promise((resolve) => {
+    setTimeout(() => {
+      console.log("test delay - ", req.url);
+      resolve();
+    }, 2000);
+  });
+  await delay;
+
   // Insert new topic into database if topic name unique
   try {
     await db.query(`insert into topics (name, description) values ($1, $2)`, [
-      name,
+      name.toLowerCase(),
       description,
     ]);
   } catch (err) {
@@ -84,5 +111,5 @@ module.exports.newTopic = catchAsync(async (req, res, next) => {
     }
   }
 
-  res.status(200).json({ message: "Topic Created" });
+  res.status(200).json({ message: `Created Topic: ${name}` });
 });
