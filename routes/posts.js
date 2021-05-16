@@ -17,7 +17,9 @@ router.post("/singletopic", validateSingleTopic, posts.getSingleTopic);
 
 router.get("/topics/:topic", posts.topicPosts);
 
-router.get("/search", posts.searchPosts)
+router.get("/search", posts.searchPosts);
+
+router.get("/user/:username", posts.userPosts);
 
 router.get("/:post_id", posts.singlePost);
 

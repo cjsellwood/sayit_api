@@ -273,3 +273,36 @@ module.exports.searchPosts = catchAsync(async (req, res, next) => {
 
   res.status(200).json({ posts: posts });
 });
+
+// Get posts from a specific user
+module.exports.userPosts = catchAsync(async (req, res, next) => {
+  const { username } = req.params;
+
+  // Delay test
+  const delay = new Promise((resolve) => {
+    setTimeout(() => {
+      console.log("test delay - ", req.url);
+      resolve();
+    }, 2000);
+  });
+  await delay;
+
+  const result = await db.query(
+    `select posts.post_id, posts.user_id, posts.topic_id, posts.title,
+     posts.text, posts.time at time zone 'utc' as time,
+     topics.name as topic, users.username from posts
+     join topics on topics.topic_id = posts.topic_id
+     join users on users.user_id = posts.user_id
+     where users.username = $1`,
+    [username]
+  );
+
+  // Send error if not a topic
+  if (!result.rows.length) {
+    return next(new ExpressError(400, "No posts found"));
+  }
+
+  const posts = result.rows;
+
+  res.status(200).json({ posts: posts });
+});

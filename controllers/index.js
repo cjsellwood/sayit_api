@@ -75,7 +75,7 @@ module.exports.loginUser = catchAsync(async (req, res, next) => {
   if (isValid) {
     const jwt = issueJWT(user.user_id);
     res.status(200).json({
-      message: "Logged In",
+      message: "Logged in",
       token: jwt.token,
       expiresIn: jwt.expiresIn,
     });
