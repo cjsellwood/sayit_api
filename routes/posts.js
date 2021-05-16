@@ -7,6 +7,7 @@ const {
   validateDeletePost,
   validateEditPost,
   validateSingleTopic,
+  validateVotePost,
 } = require("../middleware");
 
 router.get("/", posts.allPosts);
@@ -42,6 +43,13 @@ router.patch(
   validateEditPost,
   passport.authenticate("jwt", { session: false }),
   posts.editPost
+);
+
+router.post(
+  "/:post_id/vote",
+  validateVotePost,
+  passport.authenticate("jwt", { session: false }),
+  posts.votePost
 );
 
 module.exports = router;

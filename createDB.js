@@ -43,7 +43,7 @@ const createDB = async () => {
     user_id int not null references users,
     post_id int not null references posts on delete cascade,
     vote smallint,
-    unique (vote_id, user_id, post_id)
+    unique (user_id, post_id)
   )`);
 
   const res = await db.query("select now()");

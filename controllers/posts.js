@@ -313,3 +313,26 @@ module.exports.userPosts = catchAsync(async (req, res, next) => {
 
   res.status(200).json({ posts: posts });
 });
+
+// Vote for a post
+module.exports.votePost = catchAsync(async (req, res, next) => {
+  const { vote, post_id } = req.body;
+  const { user_id } = req.user;
+
+  // Delay test
+  const delay = new Promise((resolve) => {
+    setTimeout(() => {
+      console.log("test delay - ", req.url);
+      resolve();
+    }, 2000);
+  });
+  await delay;
+
+  await db.query(
+    `insert into votes (user_id, post_id, vote) values ($1, $2, $3)
+    on conflict (user_id, post_id) do update set vote = $3`,
+    [user_id, post_id, vote]
+  );
+
+  res.status(200).json({ message: "Voted" });
+});

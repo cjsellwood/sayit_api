@@ -26,6 +26,11 @@ module.exports.editPostSchema = Joi.object({
   post_id: Joi.number().required(),
 }).required();
 
+module.exports.votePostSchema = Joi.object({
+  vote: Joi.number().integer().min(-1).max(1).required(),
+  post_id: Joi.number().required(),
+}).required();
+
 module.exports.newTopicSchema = Joi.object({
   name: Joi.string().required(),
   description: Joi.string().required(),

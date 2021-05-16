@@ -4,6 +4,7 @@ const {
   newPostSchema,
   deletePostSchema,
   editPostSchema,
+  votePostSchema,
   newTopicSchema,
   newCommentSchema,
   deleteCommentSchema,
@@ -59,6 +60,17 @@ module.exports.validateDeletePost = (req, res, next) => {
 
 module.exports.validateEditPost = (req, res, next) => {
   const isValid = editPostSchema.validate(req.body);
+  if (isValid.error) {
+    const message = isValid.error.details
+      .map((error) => error.message)
+      .join(",");
+    return next(new ExpressError(400, message));
+  }
+  next();
+};
+
+module.exports.validateVotePost = (req, res, next) => {
+  const isValid = votePostSchema.validate(req.body);
   if (isValid.error) {
     const message = isValid.error.details
       .map((error) => error.message)
