@@ -82,6 +82,12 @@ const seedDB = async () => {
       ", "
     )}`
   );
+
+  // Create test votes
+  await db.query(
+    `insert into votes (user_id, post_id, vote) values
+    (1, 1, 1), (2, 1, -1), (3, 1, 0), (4, 1, 1), (5, 1, 1)`
+  );
 };
 
 // seedDB()

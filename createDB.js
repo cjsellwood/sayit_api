@@ -4,7 +4,7 @@ const seedDB = require("./seedDB");
 
 const createDB = async () => {
   // Remove old tables
-  await db.query("drop table if exists users, topics, posts, comments;");
+  await db.query("drop table if exists users, topics, posts, comments, votes;");
 
   // Create tables
   await db.query(`create table users (
@@ -36,6 +36,14 @@ const createDB = async () => {
     text text not null,
     parent int references comments,
     time timestamp not null
+  )`);
+
+  await db.query(`create table votes (
+    vote_id serial primary key,
+    user_id int not null references users,
+    post_id int not null references posts on delete cascade,
+    vote smallint,
+    unique (vote_id, user_id, post_id)
   )`);
 
   const res = await db.query("select now()");

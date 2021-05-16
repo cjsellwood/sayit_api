@@ -13,13 +13,20 @@ module.exports.allPosts = catchAsync(async (req, res, next) => {
   });
   await delay;
 
+  const { user_id } = req.query;
+
   const result = await db.query(
     `select posts.post_id, posts.user_id, posts.topic_id, posts.title,
      posts.text, posts.time at time zone 'utc' as time,
-     topics.name as topic, users.username from posts
+     topics.name as topic, users.username,
+     cast(coalesce((select sum(vote) from votes where posts.post_id = post_id), 0) as integer) as votes,
+     (select vote from votes where posts.post_id = post_id and user_id = $1) as user_vote
+     from posts
      join topics on topics.topic_id = posts.topic_id
-     join users on users.user_id = posts.user_id`
+     join users on users.user_id = posts.user_id;`,
+    [user_id]
   );
+
   const posts = result.rows;
 
   res.status(200).json({ posts: posts });
@@ -44,7 +51,7 @@ module.exports.topicPosts = catchAsync(async (req, res, next) => {
      topics.name as topic, users.username from posts
      join topics on topics.topic_id = posts.topic_id
      join users on users.user_id = posts.user_id
-     where topics.name = $1`,
+     where topics.name = $1;`,
     [topic]
   );
 
