@@ -1,19 +1,9 @@
 const catchAsync = require("../utils/catchAsync");
-const ExpressError = require("../utils/ExpressError");
 const db = require("../db");
 
 module.exports.newComment = catchAsync(async (req, res, next) => {
   const { text, post_id, parent } = req.body;
   const { user_id, username } = req.user;
-
-  // Delay test
-  const delay = new Promise((resolve) => {
-    setTimeout(() => {
-      console.log("test delay - ", req.url);
-      resolve();
-    }, 2000);
-  });
-  await delay;
 
   const result = await db.query(
     `insert into comments (user_id, post_id, text, parent, time)
@@ -27,40 +17,28 @@ module.exports.newComment = catchAsync(async (req, res, next) => {
   res.status(200).json({ message: "Comment Submitted", comment });
 });
 
-module.exports.deleteComment = catchAsync(async(req, res, next) => {
-  const {user_id} = req.user;
-  const {comment_id} = req.body;
+module.exports.deleteComment = catchAsync(async (req, res, next) => {
+  const { user_id } = req.user;
+  const { comment_id } = req.body;
 
-  // Delay test
-  const delay = new Promise((resolve) => {
-    setTimeout(() => {
-      console.log("test delay - ", req.url);
-      resolve();
-    }, 2000);
-  });
-  await delay;
+  await db.query(
+    `update comments set text = '[deleted]', user_id = 11
+  where comment_id = $1 and user_id = $2`,
+    [comment_id, user_id]
+  );
 
-  await db.query(`update comments set text = '[deleted]', user_id = 11
-  where comment_id = $1 and user_id = $2`, [comment_id, user_id])
+  res.status(200).json({ message: "Comment deleted" });
+});
 
-  res.status(200).json({message: "Comment deleted"})
-})
+module.exports.editComment = catchAsync(async (req, res, next) => {
+  const { user_id } = req.user;
+  const { text, comment_id } = req.body;
 
-module.exports.editComment = catchAsync(async(req, res, next) => {
-  const {user_id} = req.user;
-  const {text, comment_id} = req.body;
+  await db.query(
+    `update comments set text = $1
+  where comment_id = $2 and user_id = $3`,
+    [text, comment_id, user_id]
+  );
 
-  // Delay test
-  const delay = new Promise((resolve) => {
-    setTimeout(() => {
-      console.log("test delay - ", req.url);
-      resolve();
-    }, 2000);
-  });
-  await delay;
-
-  await db.query(`update comments set text = $1
-  where comment_id = $2 and user_id = $3`, [text, comment_id, user_id])
-
-  res.status(200).json({message: "Comment edited"})
-})
+  res.status(200).json({ message: "Comment edited" });
+});

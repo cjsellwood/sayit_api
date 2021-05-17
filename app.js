@@ -4,7 +4,6 @@ if (process.env.NODE_ENV !== "production") {
 
 const express = require("express");
 const app = express();
-const methodOverride = require("method-override");
 const cors = require("cors");
 const compression = require("compression");
 const helmet = require("helmet");
@@ -16,15 +15,12 @@ const db = require("./db");
 
 // Defined routes
 const indexRouter = require("./routes/index");
-const postsRouter = require('./routes/posts')
-const commentsRouter = require("./routes/comments")
+const postsRouter = require("./routes/posts");
+const commentsRouter = require("./routes/comments");
 
 // Parse requests
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-
-// Allows methods other than GET or POST
-app.use(methodOverride("_method"));
 
 // Allow requests from frontend
 app.use(cors());
@@ -47,7 +43,7 @@ passport.use(
       [payload.sub]
     );
 
-    const user = result.rows[0]
+    const user = result.rows[0];
 
     if (user) {
       return done(null, user);
@@ -72,7 +68,7 @@ app.use("*", (req, res, next) => {
 // Error handling
 app.use((err, req, res, next) => {
   console.log("ERROR", err.message, err.statusCode);
-  res.status(err.statusCode = 400).json({ error: err.message });
+  res.status((err.statusCode = 400)).json({ error: err.message });
 });
 
 const port = process.env.PORT || 3000;

@@ -13,15 +13,6 @@ module.exports.registerUser = catchAsync(async (req, res, next) => {
 
   let result;
 
-  // Delay test
-  const delay = new Promise((resolve) => {
-    setTimeout(() => {
-      console.log("test delay - ", req.url);
-      resolve();
-    }, 2000);
-  });
-  await delay;
-
   // Handle username already exists error
   try {
     result = await db.query(
@@ -50,19 +41,11 @@ module.exports.registerUser = catchAsync(async (req, res, next) => {
 // Login user and issue new jwt token
 module.exports.loginUser = catchAsync(async (req, res, next) => {
   const { username, password } = req.body;
+
   const result = await db.query(
     `select user_id, password from users where username = $1`,
     [username]
   );
-
-  // Delay test
-  const delay = new Promise((resolve) => {
-    setTimeout(() => {
-      console.log("test delay - ", req.url);
-      resolve();
-    }, 2000);
-  });
-  await delay;
 
   const user = result.rows[0];
 
@@ -87,15 +70,6 @@ module.exports.loginUser = catchAsync(async (req, res, next) => {
 // Create new topic
 module.exports.newTopic = catchAsync(async (req, res, next) => {
   const { name, description } = req.body;
-
-  // Delay test
-  const delay = new Promise((resolve) => {
-    setTimeout(() => {
-      console.log("test delay - ", req.url);
-      resolve();
-    }, 2000);
-  });
-  await delay;
 
   // Insert new topic into database if topic name unique
   try {

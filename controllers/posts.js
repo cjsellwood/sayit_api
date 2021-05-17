@@ -4,15 +4,6 @@ const db = require("../db");
 
 // Fetch all posts
 module.exports.allPosts = catchAsync(async (req, res, next) => {
-  // Delay test
-  const delay = new Promise((resolve) => {
-    setTimeout(() => {
-      console.log("test delay - ", req.url);
-      resolve();
-    }, 2000);
-  });
-  await delay;
-
   const { user_id } = req.query;
 
   const result = await db.query(
@@ -35,24 +26,19 @@ module.exports.allPosts = catchAsync(async (req, res, next) => {
 // Fetch posts of a single topic
 module.exports.topicPosts = catchAsync(async (req, res, next) => {
   const { topic } = req.params;
-
-  // Delay test
-  const delay = new Promise((resolve) => {
-    setTimeout(() => {
-      console.log("test delay - ", req.url);
-      resolve();
-    }, 2000);
-  });
-  await delay;
+  const { user_id } = req.query;
 
   const result = await db.query(
     `select posts.post_id, posts.user_id, posts.topic_id, posts.title,
      posts.text, posts.time at time zone 'utc' as time,
-     topics.name as topic, users.username from posts
+     topics.name as topic, users.username,
+     cast(coalesce((select sum(vote) from votes where posts.post_id = post_id), 0) as integer) as votes,
+     (select vote from votes where posts.post_id = post_id and user_id = $1) as user_vote
+      from posts
      join topics on topics.topic_id = posts.topic_id
      join users on users.user_id = posts.user_id
-     where topics.name = $1;`,
-    [topic]
+     where topics.name = $2;`,
+    [user_id, topic]
   );
 
   // Send error if not a topic
@@ -77,24 +63,20 @@ module.exports.topicPosts = catchAsync(async (req, res, next) => {
 // Fetch a single post
 module.exports.singlePost = catchAsync(async (req, res, next) => {
   const { post_id } = req.params;
-  // Delay test
-  const delay = new Promise((resolve) => {
-    setTimeout(() => {
-      console.log("test delay - ", req.url);
-      resolve();
-    }, 2000);
-  });
-  await delay;
+  const { user_id } = req.query;
 
   // Get post details
   const result = await db.query(
     `select posts.post_id, posts.user_id, posts.topic_id, posts.title,
      posts.text, posts.time at time zone 'utc' as time,
-     topics.name as topic, users.username from posts
+     topics.name as topic, users.username,
+     cast(coalesce((select sum(vote) from votes where posts.post_id = post_id), 0) as integer) as votes,
+     (select vote from votes where posts.post_id = post_id and user_id = $1) as user_vote
+    from posts
      join topics on topics.topic_id = posts.topic_id
      join users on users.user_id = posts.user_id
-     where posts.post_id = $1`,
-    [post_id]
+     where posts.post_id = $2`,
+    [user_id, post_id]
   );
 
   // Send error if not a post_id
@@ -120,15 +102,6 @@ module.exports.singlePost = catchAsync(async (req, res, next) => {
 
 // Get list of topics
 module.exports.getTopics = catchAsync(async (req, res, next) => {
-  // Delay test
-  const delay = new Promise((resolve) => {
-    setTimeout(() => {
-      console.log("test delay - ", req.url);
-      resolve();
-    }, 2000);
-  });
-  await delay;
-
   const result = await db.query(
     `select topic_id, name, description from topics`
   );
@@ -141,15 +114,6 @@ module.exports.getTopics = catchAsync(async (req, res, next) => {
 // Get single topic
 module.exports.getSingleTopic = catchAsync(async (req, res, next) => {
   const { topic } = req.body;
-
-  // Delay test
-  const delay = new Promise((resolve) => {
-    setTimeout(() => {
-      console.log("test delay - ", req.url);
-      resolve();
-    }, 2000);
-  });
-  await delay;
 
   const result = await db.query(
     `select topic_id, name, description from topics where name = $1`,
@@ -170,15 +134,6 @@ module.exports.getSingleTopic = catchAsync(async (req, res, next) => {
 module.exports.newPost = catchAsync(async (req, res, next) => {
   const { user_id } = req.user;
   const { topic, title, text } = req.body;
-
-  // Delay test
-  const delay = new Promise((resolve) => {
-    setTimeout(() => {
-      console.log("test delay - ", req.url);
-      resolve();
-    }, 2000);
-  });
-  await delay;
 
   // Check if topic exists and get id
   const result = await db.query("select topic_id from topics where name = $1", [
@@ -209,15 +164,6 @@ module.exports.deletePost = catchAsync(async (req, res, next) => {
   const { user_id } = req.user;
   const { post_id } = req.body;
 
-  // Delay test
-  const delay = new Promise((resolve) => {
-    setTimeout(() => {
-      console.log("test delay - ", req.url);
-      resolve();
-    }, 2000);
-  });
-  await delay;
-
   await db.query(`delete from posts where post_id = $1 and user_id = $2`, [
     post_id,
     user_id,
@@ -231,15 +177,6 @@ module.exports.editPost = catchAsync(async (req, res, next) => {
   const { user_id } = req.user;
   const { text, post_id } = req.body;
 
-  // Delay test
-  const delay = new Promise((resolve) => {
-    setTimeout(() => {
-      console.log("test delay - ", req.url);
-      resolve();
-    }, 2000);
-  });
-  await delay;
-
   await db.query(
     `update posts set text = $1 where post_id = $2 and user_id = $3`,
     [text, post_id, user_id]
@@ -250,25 +187,19 @@ module.exports.editPost = catchAsync(async (req, res, next) => {
 
 // Get posts containing search query
 module.exports.searchPosts = catchAsync(async (req, res, next) => {
-  const { q } = req.query;
-
-  // Delay test
-  const delay = new Promise((resolve) => {
-    setTimeout(() => {
-      console.log("test delay - ", req.url);
-      resolve();
-    }, 2000);
-  });
-  await delay;
+  const { q, user_id } = req.query;
 
   const result = await db.query(
     `select posts.post_id, posts.user_id, posts.topic_id, posts.title,
      posts.text, posts.time at time zone 'utc' as time,
-     topics.name as topic, users.username from posts
+     topics.name as topic, users.username,
+     cast(coalesce((select sum(vote) from votes where posts.post_id = post_id), 0) as integer) as votes,
+     (select vote from votes where posts.post_id = post_id and user_id = $1) as user_vote
+      from posts
      join topics on topics.topic_id = posts.topic_id
      join users on users.user_id = posts.user_id
-     where posts.title ilike $1 or posts.text ilike $1`,
-    [`%${q}%`]
+     where posts.title ilike $2 or posts.text ilike $2`,
+    [user_id, `%${q}%`]
   );
 
   // Send error if not a topic
@@ -284,24 +215,19 @@ module.exports.searchPosts = catchAsync(async (req, res, next) => {
 // Get posts from a specific user
 module.exports.userPosts = catchAsync(async (req, res, next) => {
   const { username } = req.params;
-
-  // Delay test
-  const delay = new Promise((resolve) => {
-    setTimeout(() => {
-      console.log("test delay - ", req.url);
-      resolve();
-    }, 2000);
-  });
-  await delay;
+  const { user_id } = req.query;
 
   const result = await db.query(
     `select posts.post_id, posts.user_id, posts.topic_id, posts.title,
      posts.text, posts.time at time zone 'utc' as time,
-     topics.name as topic, users.username from posts
+     topics.name as topic, users.username,
+     cast(coalesce((select sum(vote) from votes where posts.post_id = post_id), 0) as integer) as votes,
+     (select vote from votes where posts.post_id = post_id and user_id = $1) as user_vote
+     from posts
      join topics on topics.topic_id = posts.topic_id
      join users on users.user_id = posts.user_id
-     where users.username = $1`,
-    [username]
+     where users.username = $2`,
+    [user_id, username]
   );
 
   // Send error if not a topic
@@ -318,15 +244,6 @@ module.exports.userPosts = catchAsync(async (req, res, next) => {
 module.exports.votePost = catchAsync(async (req, res, next) => {
   const { vote, post_id } = req.body;
   const { user_id } = req.user;
-
-  // Delay test
-  const delay = new Promise((resolve) => {
-    setTimeout(() => {
-      console.log("test delay - ", req.url);
-      resolve();
-    }, 2000);
-  });
-  await delay;
 
   await db.query(
     `insert into votes (user_id, post_id, vote) values ($1, $2, $3)

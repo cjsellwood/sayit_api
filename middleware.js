@@ -13,8 +13,8 @@ const {
 } = require("./joi");
 const ExpressError = require("./utils/ExpressError");
 
-module.exports.validateRegister = (req, res, next) => {
-  const isValid = registerSchema.validate(req.body);
+const validate = (req, res, next, schema) => {
+  const isValid = schema.validate(req.body);
   if (isValid.error) {
     let message = isValid.error.details.map((error) => error.message).join(",");
     if (message === '"confirmPassword" must be [ref:password]') {
@@ -25,112 +25,46 @@ module.exports.validateRegister = (req, res, next) => {
   next();
 };
 
+module.exports.validateRegister = (req, res, next) => {
+  validate(req, res, next, registerSchema);
+};
+
 module.exports.validateLogin = (req, res, next) => {
-  const isValid = loginSchema.validate(req.body);
-  if (isValid.error) {
-    const message = isValid.error.details
-      .map((error) => error.message)
-      .join(",");
-    return next(new ExpressError(400, message));
-  }
-  next();
+  validate(req, res, next, loginSchema);
 };
 
 module.exports.validateNewPost = (req, res, next) => {
-  const isValid = newPostSchema.validate(req.body);
-  if (isValid.error) {
-    const message = isValid.error.details
-      .map((error) => error.message)
-      .join(",");
-    return next(new ExpressError(400, message));
-  }
-  next();
+  validate(req, res, next, newPostSchema);
 };
 
 module.exports.validateDeletePost = (req, res, next) => {
-  const isValid = deletePostSchema.validate(req.body);
-  if (isValid.error) {
-    const message = isValid.error.details
-      .map((error) => error.message)
-      .join(",");
-    return next(new ExpressError(400, message));
-  }
-  next();
+  validate(req, res, next, deletePostSchema);
 };
 
 module.exports.validateEditPost = (req, res, next) => {
-  const isValid = editPostSchema.validate(req.body);
-  if (isValid.error) {
-    const message = isValid.error.details
-      .map((error) => error.message)
-      .join(",");
-    return next(new ExpressError(400, message));
-  }
-  next();
+  validate(req, res, next, editPostSchema);
 };
 
 module.exports.validateVotePost = (req, res, next) => {
-  const isValid = votePostSchema.validate(req.body);
-  if (isValid.error) {
-    const message = isValid.error.details
-      .map((error) => error.message)
-      .join(",");
-    return next(new ExpressError(400, message));
-  }
-  next();
+  validate(req, res, next, votePostSchema);
 };
 
 module.exports.validateNewTopic = (req, res, next) => {
-  const isValid = newTopicSchema.validate(req.body);
-  if (isValid.error) {
-    const message = isValid.error.details
-      .map((error) => error.message)
-      .join(",");
-    return next(new ExpressError(400, message));
-  }
-  next();
+  validate(req, res, next, newTopicSchema);
 };
 
 module.exports.validateNewComment = (req, res, next) => {
-  const isValid = newCommentSchema.validate(req.body);
-  if (isValid.error) {
-    const message = isValid.error.details
-      .map((error) => error.message)
-      .join(",");
-    return next(new ExpressError(400, message));
-  }
-  next();
+  validate(req, res, next, newCommentSchema);
 };
 
 module.exports.validateDeleteComment = (req, res, next) => {
-  const isValid = deleteCommentSchema.validate(req.body);
-  if (isValid.error) {
-    const message = isValid.error.details
-      .map((error) => error.message)
-      .join(",");
-    return next(new ExpressError(400, message));
-  }
-  next();
+  validate(req, res, next, deleteCommentSchema);
 };
 
 module.exports.validateEditComment = (req, res, next) => {
-  const isValid = editCommentSchema.validate(req.body);
-  if (isValid.error) {
-    const message = isValid.error.details
-      .map((error) => error.message)
-      .join(",");
-    return next(new ExpressError(400, message));
-  }
-  next();
+  validate(req, res, next, editCommentSchema);
 };
 
 module.exports.validateSingleTopic = (req, res, next) => {
-  const isValid = singleTopicSchema.validate(req.body);
-  if (isValid.error) {
-    const message = isValid.error.details
-      .map((error) => error.message)
-      .join(",");
-    return next(new ExpressError(400, message));
-  }
-  next();
+  validate(req, res, next, singleTopicSchema);
 };
