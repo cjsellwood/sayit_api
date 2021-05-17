@@ -22,7 +22,7 @@ module.exports.deleteComment = catchAsync(async (req, res, next) => {
   const { comment_id } = req.body;
 
   await db.query(
-    `update comments set text = '[deleted]', user_id = 11
+    `update comments set text = '[deleted]', user_id = 1
   where comment_id = $1 and user_id = $2`,
     [comment_id, user_id]
   );

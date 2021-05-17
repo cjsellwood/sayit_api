@@ -1,35 +1,44 @@
+if (process.env.NODE_ENV !== "production") {
+  require("dotenv").config();
+}
+
 // Connect to postgres database
 const db = require("./db");
 const bcrypt = require("bcrypt");
+const faker = require("faker");
 
 const seedDB = async () => {
+  // Create user to assign to every deleted comment
+  const deletedPassword = await bcrypt.hash(process.env.DELETED_PASSWORD, 12);
+
+  await db.query(
+    `insert into users (username, password, joined)
+      values ('[deleted]', '${deletedPassword}', now())`
+  );
+
   // Create test users
   const users = [];
   const password = await bcrypt.hash("testuser", 12);
   for (let i = 1; i <= 10; i++) {
-    users.push(`('test${i}', '${password}', now())`);
+    users.push(
+      `('${faker.internet.userName()}',
+      '${password}',
+      '${faker.date.past().toISOString()}')`
+    );
   }
 
   await db.query(
     `insert into users (username, password, joined) values ${users.join(", ")};`
   );
 
-  // Create user to assign to every deleted comment
-  const deletedPassword = await bcrypt.hash(
-    "1EF41ABF5352C5B525BC21CF9162F",
-    12
-  );
-
-  await db.query(
-    `insert into users (username, password, joined)
-    values ('[deleted]', '${deletedPassword}', now())`
-  );
-
   // Create topics
   const topics = [];
 
+  const exampleTopics = ["Animals", "Food", "Technology", "Cars", "News"];
   for (let i = 1; i <= 5; i++) {
-    topics.push(`('topic${i}', 'Description for topic ${i}')`);
+    topics.push(
+      `('${exampleTopics[i - 1]}', '${faker.lorem.text().substring(0, 254)}')`
+    );
   }
 
   await db.query(
@@ -38,12 +47,14 @@ const seedDB = async () => {
 
   // Create test posts
   const posts = [];
-  for (let i = 1; i <= 10; i++) {
-    const userId = Math.floor(Math.random() * 10) + 1;
+  for (let i = 1; i <= 75; i++) {
+    const userId = Math.floor(Math.random() * 10) + 2;
+    const topicId = Math.floor(Math.random() * 5) + 1;
     posts.push(
-      `(${userId}, ${
-        Math.floor(Math.random() * 5) + 1
-      }, 'Post Title ${i}', 'Post text for post ${i}', now())`
+      `(${userId}, ${topicId},
+      '${faker.lorem.sentence()}',
+      '${faker.lorem.lines()}'
+      ,'${faker.date.recent().toISOString()}')`
     );
   }
 
@@ -54,28 +65,33 @@ const seedDB = async () => {
 
   // Create test comments
   const comments = [];
+  const values = [];
 
-  for (let i = 1; i <= 50; i++) {
-    const userId = Math.floor(Math.random() * 10) + 1;
-    const postId = Math.floor(Math.random() * 10) + 1;
+  for (let i = 1; i <= 500; i++) {
+    const userId = Math.floor(Math.random() * 10) + 2;
+    let postId = Math.floor(Math.random() * 75) + 1;
+    let parentId = Math.floor(Math.random() * i) + 1;
+
+    if (i > 5) {
+      if (Math.random() < 0.25 || parentId === i) {
+        parentId = null;
+      } else {
+        postId = values[parentId - 1].postId;
+      }
+    } else {
+      parentId = null;
+    }
+
+    values.push({ comment_id: i, postId, parentId });
+
     comments.push(
-      `(${userId}, ${postId}, 'This is comment ${i} on post ${postId}.', null, now())`
+      `(${userId}, 
+      ${postId},
+      '${faker.lorem.text()}',
+      ${parentId},
+      '${faker.date.recent().toISOString()}')`
     );
   }
-
-  // Create nested comments chain
-  comments.push(
-    `(${1}, ${1}, 'This is a parent comment on post 1', null, now())`
-  );
-  comments.push(
-    `(${1}, ${1}, 'This is a second level nested comment on post 1', 51, now())`
-  );
-  comments.push(
-    `(${1}, ${1}, 'This is a third level nested comment on post 1', 52, now())`
-  );
-  comments.push(
-    `(${1}, ${1}, 'This is a fourth level nested comment on post 1', 53, now())`
-  );
 
   await db.query(
     `insert into comments (user_id, post_id, text, parent, time) values ${comments.join(
@@ -83,17 +99,45 @@ const seedDB = async () => {
     )}`
   );
 
+  // const votes = [];
+  // const unique = [];
+  // for (let i = 1; i <= 409; i++) {
+  //   const userId = Math.floor(Math.random() * 10) + 1;
+  //   const postId = Math.floor(Math.random() * 75) + 1;
+  //   const vote = Math.floor(Math.random() * 3) - 1;
+
+  //   if (!unique.includes(`${userId}.${postId}`)) {
+  //     votes.push(`(${userId}, ${postId}, ${vote})`);
+  //     unique.push(`${userId}.${postId}`);
+  //   }
+  // }
+
+  // console.log(unique.length, votes.length);
+
+  const postVotes = [];
+  for (let i = 1; i <= 75; i++) {
+    const vote = Math.floor(Math.random() * 3) - 1;
+    const postId = i;
+    const votes = Math.floor(Math.random() * 21) - 10;
+    const userVotes = [];
+    let j = 0;
+
+    while (userVotes.length < Math.abs(votes)) {
+      userVotes.push(j + 2);
+      j++;
+    }
+
+    for (let k = 0; k < userVotes.length; k++) {
+      if (userVotes.length) {
+        postVotes.push(`(${userVotes[k]}, ${postId}, ${vote})`);
+      }
+    }
+  }
+
   // Create test votes
   await db.query(
-    `insert into votes (user_id, post_id, vote) values
-    (1, 1, 1), (2, 1, -1), (3, 1, 0), (4, 1, 1), (5, 1, 1)`
+    `insert into votes (user_id, post_id, vote) values ${postVotes.join(", ")}`
   );
 };
-
-// seedDB()
-//   .then(() => {
-//     process.exit();
-//   })
-//   .catch((err) => console.log(err.message));
 
 module.exports = seedDB;
