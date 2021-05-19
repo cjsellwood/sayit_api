@@ -6,6 +6,9 @@ const pool = new Pool({
   ssl: {
     rejectUnauthorized: false,
   }
+  // local
+  // database: "sayit",
+  // user: "postgres",
 });
 
 module.exports = {

@@ -34,7 +34,7 @@ const seedDB = async () => {
   // Create topics
   const topics = [];
 
-  const exampleTopics = ["Animals", "Food", "Technology", "Cars", "News"];
+  const exampleTopics = ["animals", "food", "technology", "cars", "news"];
   for (let i = 1; i <= 5; i++) {
     topics.push(
       `('${exampleTopics[i - 1]}', '${faker.lorem.text().substring(0, 254)}')`
