@@ -2,13 +2,13 @@ const { Pool } = require("pg");
 const connectionString = process.env.DATABASE_URL;
 
 const pool = new Pool({
-  connectionString,
-  ssl: {
-    rejectUnauthorized: false,
-  }
+  // connectionString,
+  // ssl: {
+  //   rejectUnauthorized: false,
+  // }
   // local
-  // database: "sayit",
-  // user: "postgres",
+  database: "sayit",
+  user: "postgres",
 });
 
 module.exports = {

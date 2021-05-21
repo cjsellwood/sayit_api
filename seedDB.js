@@ -54,7 +54,12 @@ const seedDB = async () => {
       `(${userId}, ${topicId},
       '${faker.lorem.sentence()}',
       '${faker.lorem.lines()}'
-      ,'${faker.date.recent().toISOString()}')`
+      ,'${faker.date
+        .between(
+          new Date(Date.now() - 1000 * 60 * 60 * 24 * 365),
+          new Date(Date.now())
+        )
+        .toISOString()}')`
     );
   }
 

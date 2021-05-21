@@ -1,10 +1,14 @@
 const catchAsync = require("../utils/catchAsync");
 const ExpressError = require("../utils/ExpressError");
 const db = require("../db");
+const { setOrder, setFilter } = require("../utils/sqlParameters");
 
 // Fetch all posts
 module.exports.allPosts = catchAsync(async (req, res, next) => {
-  const { user_id } = req.query;
+  const { user_id, order, filter } = req.query;
+
+  const sqlOrder = setOrder(order);
+  const sqlFilter = setFilter(filter);
 
   const result = await db.query(
     `select posts.post_id, posts.user_id, posts.topic_id, posts.title,
@@ -14,9 +18,13 @@ module.exports.allPosts = catchAsync(async (req, res, next) => {
      (select vote from votes where posts.post_id = post_id and user_id = $1) as user_vote
      from posts
      join topics on topics.topic_id = posts.topic_id
-     join users on users.user_id = posts.user_id;`,
-    [user_id]
+     join users on users.user_id = posts.user_id
+     where time > $2
+     order by ${sqlOrder};`,
+    [user_id, sqlFilter]
   );
+
+  // console.log(result);
 
   const posts = result.rows;
 
