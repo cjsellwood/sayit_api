@@ -26,6 +26,11 @@ module.exports.allPosts = catchAsync(async (req, res, next) => {
     [user_id, sqlFilter, offset]
   );
 
+  // Send error if no posts
+  if (!result.rows.length) {
+    return next(new ExpressError(400, "Post does not exist"));
+  }
+
   const posts = result.rows;
 
   res.status(200).json({ posts: posts });
@@ -63,7 +68,7 @@ module.exports.topicPosts = catchAsync(async (req, res, next) => {
     );
 
     if (topicExists.rows.length) {
-      return next(new ExpressError(400, "There are no posts for this topic"));
+      return next(new ExpressError(400, "No posts found"));
     } else {
       return next(new ExpressError(400, "Topic does not exist"));
     }
@@ -255,8 +260,6 @@ module.exports.userPosts = catchAsync(async (req, res, next) => {
      offset $4;`,
     [user_id, username, sqlFilter, offset]
   );
-
-  console.log(result);
 
   // Send error if not a topic
   if (!result.rows.length) {
