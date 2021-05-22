@@ -28,7 +28,7 @@ module.exports.allPosts = catchAsync(async (req, res, next) => {
 
   // Send error if no posts
   if (!result.rows.length) {
-    return next(new ExpressError(400, "Post does not exist"));
+    return next(new ExpressError(400, "No posts found"));
   }
 
   const posts = result.rows;
