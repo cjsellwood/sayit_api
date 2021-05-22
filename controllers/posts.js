@@ -20,13 +20,17 @@ module.exports.allPosts = catchAsync(async (req, res, next) => {
      join topics on topics.topic_id = posts.topic_id
      join users on users.user_id = posts.user_id
      where time > $2
-     order by ${sqlOrder}
+     order by ${sqlOrder}, posts.post_id desc
      limit 25
      offset $3;`,
     [user_id, sqlFilter, offset]
   );
 
-  // Send error if no posts
+  // Send error if no posts and offset 0
+  if (!result.rows.length && offset) {
+    return next(new ExpressError(400, "No more posts found"));
+  }
+
   if (!result.rows.length) {
     return next(new ExpressError(400, "No posts found"));
   }
@@ -54,11 +58,16 @@ module.exports.topicPosts = catchAsync(async (req, res, next) => {
      join topics on topics.topic_id = posts.topic_id
      join users on users.user_id = posts.user_id
      where topics.name = $2 and time > $3
-     order by ${sqlOrder}
+     order by ${sqlOrder}, posts.post_id desc
      limit 25
      offset $4;`,
     [user_id, topic, sqlFilter, offset]
   );
+
+  // Send error if no posts and offset not 0
+  if (!result.rows.length && offset) {
+    return next(new ExpressError(400, "No more posts found"));
+  }
 
   // Send error if not a topic
   if (!result.rows.length) {
@@ -221,13 +230,17 @@ module.exports.searchPosts = catchAsync(async (req, res, next) => {
      join topics on topics.topic_id = posts.topic_id
      join users on users.user_id = posts.user_id
      where (posts.title ilike $2 or posts.text ilike $2) and time > $3
-     order by ${sqlOrder}
+     order by ${sqlOrder}, posts.post_id desc
      limit 25
      offset $4;`,
     [user_id, `%${q}%`, sqlFilter, offset]
   );
 
-  // Send error if not a topic
+  // Send error if no results not found
+  if (!result.rows.length && offset) {
+    return next(new ExpressError(400, "No more posts found"));
+  }
+
   if (!result.rows.length) {
     return next(new ExpressError(400, "No posts found"));
   }
@@ -255,13 +268,17 @@ module.exports.userPosts = catchAsync(async (req, res, next) => {
      join topics on topics.topic_id = posts.topic_id
      join users on users.user_id = posts.user_id
      where users.username = $2 and time > $3
-     order by ${sqlOrder}
+     order by ${sqlOrder}, posts.post_id desc
      limit 25
      offset $4;`,
     [user_id, username, sqlFilter, offset]
   );
 
   // Send error if not a topic
+  if (!result.rows.length && offset) {
+    return next(new ExpressError(400, "No more posts found"));
+  }
+
   if (!result.rows.length) {
     return next(new ExpressError(400, "No posts found"));
   }
