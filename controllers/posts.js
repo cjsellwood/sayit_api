@@ -34,7 +34,10 @@ module.exports.allPosts = catchAsync(async (req, res, next) => {
 // Fetch posts of a single topic
 module.exports.topicPosts = catchAsync(async (req, res, next) => {
   const { topic } = req.params;
-  const { user_id } = req.query;
+  const { user_id, order, filter, offset } = req.query;
+
+  const sqlOrder = setOrder(order);
+  const sqlFilter = setFilter(filter);
 
   const result = await db.query(
     `select posts.post_id, posts.user_id, posts.topic_id, posts.title,
@@ -45,8 +48,11 @@ module.exports.topicPosts = catchAsync(async (req, res, next) => {
       from posts
      join topics on topics.topic_id = posts.topic_id
      join users on users.user_id = posts.user_id
-     where topics.name = $2;`,
-    [user_id, topic]
+     where topics.name = $2 and time > $3
+     order by ${sqlOrder}
+     limit 25
+     offset $4;`,
+    [user_id, topic, sqlFilter, offset]
   );
 
   // Send error if not a topic
@@ -195,7 +201,10 @@ module.exports.editPost = catchAsync(async (req, res, next) => {
 
 // Get posts containing search query
 module.exports.searchPosts = catchAsync(async (req, res, next) => {
-  const { q, user_id } = req.query;
+  const { q, user_id, order, filter, offset } = req.query;
+
+  const sqlOrder = setOrder(order);
+  const sqlFilter = setFilter(filter);
 
   const result = await db.query(
     `select posts.post_id, posts.user_id, posts.topic_id, posts.title,
@@ -206,8 +215,11 @@ module.exports.searchPosts = catchAsync(async (req, res, next) => {
       from posts
      join topics on topics.topic_id = posts.topic_id
      join users on users.user_id = posts.user_id
-     where posts.title ilike $2 or posts.text ilike $2`,
-    [user_id, `%${q}%`]
+     where (posts.title ilike $2 or posts.text ilike $2) and time > $3
+     order by ${sqlOrder}
+     limit 25
+     offset $4;`,
+    [user_id, `%${q}%`, sqlFilter, offset]
   );
 
   // Send error if not a topic
@@ -223,7 +235,10 @@ module.exports.searchPosts = catchAsync(async (req, res, next) => {
 // Get posts from a specific user
 module.exports.userPosts = catchAsync(async (req, res, next) => {
   const { username } = req.params;
-  const { user_id } = req.query;
+  const { user_id, order, filter, offset } = req.query;
+
+  const sqlOrder = setOrder(order);
+  const sqlFilter = setFilter(filter);
 
   const result = await db.query(
     `select posts.post_id, posts.user_id, posts.topic_id, posts.title,
@@ -234,9 +249,14 @@ module.exports.userPosts = catchAsync(async (req, res, next) => {
      from posts
      join topics on topics.topic_id = posts.topic_id
      join users on users.user_id = posts.user_id
-     where users.username = $2`,
-    [user_id, username]
+     where users.username = $2 and time > $3
+     order by ${sqlOrder}
+     limit 25
+     offset $4;`,
+    [user_id, username, sqlFilter, offset]
   );
+
+  console.log(result);
 
   // Send error if not a topic
   if (!result.rows.length) {
