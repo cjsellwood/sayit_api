@@ -5,7 +5,7 @@ const { setOrder, setFilter } = require("../utils/sqlParameters");
 
 // Fetch all posts
 module.exports.allPosts = catchAsync(async (req, res, next) => {
-  const { user_id, order, filter } = req.query;
+  const { user_id, order, filter, offset } = req.query;
 
   const sqlOrder = setOrder(order);
   const sqlFilter = setFilter(filter);
@@ -20,11 +20,11 @@ module.exports.allPosts = catchAsync(async (req, res, next) => {
      join topics on topics.topic_id = posts.topic_id
      join users on users.user_id = posts.user_id
      where time > $2
-     order by ${sqlOrder};`,
-    [user_id, sqlFilter]
+     order by ${sqlOrder}
+     limit 25
+     offset $3;`,
+    [user_id, sqlFilter, offset]
   );
-
-  // console.log(result);
 
   const posts = result.rows;
 
