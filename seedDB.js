@@ -47,13 +47,25 @@ const seedDB = async () => {
 
   // Create test posts
   const posts = [];
-  for (let i = 1; i <= 75; i++) {
+  for (let i = 1; i <= 88; i++) {
     const userId = Math.floor(Math.random() * 10) + 2;
     const topicId = Math.floor(Math.random() * 5) + 1;
+
+    let postText = faker.lorem.lines();
+    if (i % 5 === 0) {
+      const links = [
+        "https://www.youtube.com/watch?v=h6vERdmuV5U",
+        "https://www.youtube.com/watch?v=JkaxUblCGz0",
+        "https://i.redd.it/wftjc8bm1k071.jpg",
+        "https://i.redd.it/6f0el75jbkz61.jpg",
+        "https://reactjs.org/docs/getting-started.html",
+      ];
+      postText = `<<<Link>>>${links[Math.floor(Math.random() * 5)]}`;
+    }
     posts.push(
       `(${userId}, ${topicId},
       '${faker.lorem.sentence()}',
-      '${faker.lorem.lines()}'
+      '${postText}'
       ,'${faker.date
         .between(
           new Date(Date.now() - 1000 * 60 * 60 * 24 * 365),
@@ -103,21 +115,6 @@ const seedDB = async () => {
       ", "
     )}`
   );
-
-  // const votes = [];
-  // const unique = [];
-  // for (let i = 1; i <= 409; i++) {
-  //   const userId = Math.floor(Math.random() * 10) + 1;
-  //   const postId = Math.floor(Math.random() * 75) + 1;
-  //   const vote = Math.floor(Math.random() * 3) - 1;
-
-  //   if (!unique.includes(`${userId}.${postId}`)) {
-  //     votes.push(`(${userId}, ${postId}, ${vote})`);
-  //     unique.push(`${userId}.${postId}`);
-  //   }
-  // }
-
-  // console.log(unique.length, votes.length);
 
   const postVotes = [];
   for (let i = 1; i <= 75; i++) {

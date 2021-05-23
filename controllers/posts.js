@@ -10,6 +10,8 @@ module.exports.allPosts = catchAsync(async (req, res, next) => {
   const sqlOrder = setOrder(order);
   const sqlFilter = setFilter(filter);
 
+  const before = Date.now();
+
   const result = await db.query(
     `select posts.post_id, posts.user_id, posts.topic_id, posts.title,
      posts.text, posts.time at time zone 'utc' as time,
@@ -25,6 +27,8 @@ module.exports.allPosts = catchAsync(async (req, res, next) => {
      offset $3;`,
     [user_id, sqlFilter, offset]
   );
+
+  console.log("time:", Date.now() - before)
 
   // Send error if no posts and offset 0
   if (!result.rows.length && offset) {
