@@ -16,3 +16,9 @@ module.exports = {
     return pool.query(text, params);
   },
 };
+
+// Empty heroku postgres database
+// heroku pg:reset DATABASE_URL
+
+// Push local database to heroku
+// heroku pg:push sayit postgresql-rectangular-90431 --app sheltered-lake-91716
